@@ -1,15 +1,20 @@
 #include <Arduino.h>
+
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+
 #include <Network.h>
 
-#define EAP_IDENTITY ""
-#define EAP_PASSWORD ""
-const char* ssid = "INF";
 
-const char* device;
 
-#if defined(DEVICE_ESP01)
-    device = ""
-#endif
+
+// #if defined(DEVICE_ESP01)
+//     device = ""
+// #endif
+
+#define DHT_PIN 16
+#define DHT_TYPE DHT22
+DHT dht(DHT_PIN, DHT_TYPE);
 
 void setup()
 {
@@ -49,13 +54,29 @@ void setup()
         }
     }
 
+    dht.begin();
+
     Serial.println("Setup done");
 }
 
 void loop()
 {
-    scanNetworks();
     Serial.println("");
+
+    float h = dht.readHumidity();
+    float t = dht.readTemperature();
+
+    if (isnan(h) || isnan(t)) {
+        Serial.println("Failed to read from DHT sensor!");
+        return;
+    }
+
+    Serial.print("Humidity: ");
+    Serial.print(h);
+    Serial.print(" %\t");
+    Serial.print("Temperature: ");
+    Serial.print(t);
+    Serial.println(" *C ");
     
-    delay(5000);
+    delay(2000);
 }
